@@ -1,0 +1,21 @@
+version: "3"
+services:
+  grpc-go-todo:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes: 
+      - .:/grpc_api_todolist
+    depends_on:
+      - postgres-todo
+  
+  postgres-todo:
+    image: postgres:9.6
+    container_name: postgrestodo
+    volumes:
+      - postgres:/usr/local/var/postgres
+    environment:
+      - POSTGRES_USER=bon
+      - POSTGRES_DB=todo
+    ports:
+      - 5432:5432

@@ -1,0 +1,4 @@
+FROM golang
+WORKDIR /go/src/grpc_api_todolist
+COPY . .
+CMD ["go","run","./server/main.go"]
