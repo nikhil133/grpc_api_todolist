@@ -1,9 +1,10 @@
-package config
+package services
 
 import (
 	"context"
-	"grpc_api_todolist/pkg/v1/api"
 	"time"
+
+	"github.com/nikhil133/grpc_api_todolist/pkg/v1/api"
 
 	"github.com/go-pg/pg"
 	"github.com/golang/protobuf/ptypes"
@@ -15,13 +16,17 @@ const (
 	apiVer = "1"
 )
 
+//ToDoService is the implementation of grpc service structure
 type ToDoService struct {
 	DB *pg.DB
 }
 
+//NewToDoService constructor for ToDoService
 func NewToDoService(db *pg.DB) *ToDoService {
 	return &ToDoService{DB: InitDB()}
 }
+
+//InitDB connecting postgres sql
 func InitDB() *pg.DB {
 	return pg.Connect(&pg.Options{
 		User:     "bon",
@@ -30,6 +35,8 @@ func InitDB() *pg.DB {
 	})
 
 }
+
+//CheckApi validate api version
 func CheckApi(api string) error {
 	if apiVer != api {
 		return status.Errorf(codes.Unimplemented,
@@ -39,6 +46,7 @@ func CheckApi(api string) error {
 	return nil
 }
 
+//ToDoList struct for psql table todo_list
 type ToDoList struct {
 	TableName   struct{}  `sql:"todo_list"`
 	ID          int64     `sql:"id"`
@@ -47,6 +55,7 @@ type ToDoList struct {
 	Reminder    time.Time `sql:"reminder"`
 }
 
+//Create : Insert query on todo_list table
 func (c *ToDoService) Create(ctx context.Context, req *api.CreateRequest) (*api.CreateResponse, error) {
 	err := CheckApi(req.Api)
 	if err != nil {
@@ -57,7 +66,10 @@ func (c *ToDoService) Create(ctx context.Context, req *api.CreateRequest) (*api.
 	//defer c.DB.Close()
 
 	var row ToDoList
-	row.ID = req.Todo.Id
+	if req.Todo.Id != 0 {
+		row.ID = req.Todo.Id
+	}
+
 	row.Title = req.Todo.Title
 	row.Description = req.Todo.Description
 
@@ -68,6 +80,8 @@ func (c *ToDoService) Create(ctx context.Context, req *api.CreateRequest) (*api.
 	resp.Id = row.ID
 	return &resp, err
 }
+
+//ReadAll : query to read all content of todo_list table
 func (c *ToDoService) ReadAll(ctx context.Context, req *api.ReadAllRequest) (*api.ReadAllResponse, error) {
 
 	err := CheckApi(req.Api)
@@ -97,6 +111,7 @@ func (c *ToDoService) ReadAll(ctx context.Context, req *api.ReadAllRequest) (*ap
 
 }
 
+//Read : read by id query on todo_list table
 func (c *ToDoService) Read(ctx context.Context, req *api.ReadRequest) (*api.ReadResponse, error) {
 
 	err := CheckApi(req.Api)
@@ -121,6 +136,7 @@ func (c *ToDoService) Read(ctx context.Context, req *api.ReadRequest) (*api.Read
 	return &resp, err
 }
 
+//Update : update by id query on todo_list table
 func (c *ToDoService) Update(ctx context.Context, req *api.UpdateRequest) (*api.UpdateResponse, error) {
 
 	err := CheckApi(req.Api)
@@ -147,6 +163,7 @@ func (c *ToDoService) Update(ctx context.Context, req *api.UpdateRequest) (*api.
 
 }
 
+//Delete : delete by id query on table todo_list table
 func (c *ToDoService) Delete(ctx context.Context, req *api.DeleteRequest) (*api.DeleteResponse, error) {
 
 	err := CheckApi(req.Api)

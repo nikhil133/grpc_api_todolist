@@ -1,10 +1,11 @@
 package main
 
 import (
-	"grpc_api_todolist/config"
-	"grpc_api_todolist/pkg/v1/api"
 	"log"
 	"net"
+
+	"github.com/nikhil133/grpc_api_todolist/pkg/v1/api"
+	"github.com/nikhil133/grpc_api_todolist/pkg/v1/services"
 
 	"github.com/go-pg/pg"
 	"google.golang.org/grpc"
@@ -13,7 +14,7 @@ import (
 func main() {
 	var db *pg.DB
 	grpcServer := grpc.NewServer()
-	con := config.NewToDoService(db)
+	con := services.NewToDoService(db)
 	api.RegisterToDoServiceServer(grpcServer, con)
 	l, err := net.Listen("tcp", ":8300")
 	log.Println(err)
