@@ -18,5 +18,7 @@ func main() {
 	api.RegisterToDoServiceServer(grpcServer, con)
 	l, err := net.Listen("tcp", ":8300")
 	log.Println(err)
+	log.Println("Go server going to start at 8300")
 	grpcServer.Serve(l)
+
 }
